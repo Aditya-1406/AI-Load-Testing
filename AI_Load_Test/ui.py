@@ -1,26 +1,7 @@
-# ===============================
-# STREAMLIT UI
-# ===============================
 import streamlit as st
-
-# ===============================
-# ASYNC EXECUTION
-# ===============================
 import asyncio
-
-# ===============================
-# DATA HANDLING
-# ===============================
 import pandas as pd
-
-# ===============================
-# VISUALIZATION
-# ===============================
 import matplotlib.pyplot as plt
-
-# ===============================
-# IMPORT YOUR BACKEND LOGIC
-# ===============================
 from concurrency_test import (
     collect_trial,
     feature_engineering,
@@ -33,21 +14,13 @@ from concurrency_test import (
     set_target_api  # ✅ NEW IMPORT
 )
 
-# ==========================================================
-# STREAMLIT CONFIG
-# ==========================================================
 
 st.set_page_config(page_title="AI Load Testing Dashboard", layout="wide")
 
 st.title("🚀 AI-Based Load Testing Dashboard")
-
-# ==========================================================
-# CONTROLS
-# ==========================================================
-
 st.sidebar.header("⚙️ Controls")
 
-# ✅ NEW INPUTS (NO LOGIC CHANGE)
+
 api_url = st.sidebar.text_input(
     "Enter API URL",
     "http://127.0.0.1:8005/notes"
@@ -64,10 +37,6 @@ max_users = st.sidebar.slider(
 run_test = st.sidebar.button("▶️ Run Load Test")
 
 uploaded_file = st.sidebar.file_uploader("Or Upload CSV", type=["csv"])
-
-# ==========================================================
-# FUNCTION TO RUN FULL PIPELINE
-# ==========================================================
 
 async def run_full_pipeline():
 
@@ -99,11 +68,6 @@ async def run_full_pipeline():
 
     return df, model, scaler
 
-
-# ==========================================================
-# MAIN LOGIC
-# ==========================================================
-
 df = None
 model = None
 scaler = None
@@ -111,10 +75,8 @@ scaler = None
 if run_test:
     st.info("⏳ Running Load Test... This may take time")
 
-    # ✅ SET API (NEW)
     set_target_api(api_url)
-
-    # ✅ SET MAX USERS (SAFE IMPORT INSIDE BLOCK)
+    
     import concurrency_test
     concurrency_test.MAX_USERS = max_users
 
@@ -128,18 +90,13 @@ elif uploaded_file:
     df = pd.read_csv(uploaded_file)
     st.success("✅ CSV Loaded Successfully")
 
-# ==========================================================
-# DISPLAY RESULTS
-# ==========================================================
+
 
 if df is not None:
 
     st.subheader("📊 Dataset")
     st.dataframe(df)
 
-    # =============================
-    # METRICS
-    # =============================
     col1, col2, col3, col4 = st.columns(4)
 
     col1.metric("Avg Latency", f"{df['latency'].mean():.2f} ms")
@@ -147,9 +104,6 @@ if df is not None:
     col3.metric("Max Users", int(df["users"].max()))
     col4.metric("Max CPU", f"{df['cpu_usage'].max():.1f}%")
 
-    # =============================
-    # LATENCY GRAPH
-    # =============================
     st.subheader("📈 Latency vs Users")
 
     df_sorted = df.sort_values(by="users")
@@ -170,9 +124,7 @@ if df is not None:
     ax.set_ylabel("Latency")
     st.pyplot(fig)
 
-    # =============================
-    # ACTUAL VS PREDICTED
-    # =============================
+  
     if "predicted_latency" in df.columns:
 
         st.subheader("🎯 Model Accuracy")
@@ -190,9 +142,7 @@ if df is not None:
 
         st.pyplot(fig)
 
-    # =============================
-    # FAILURE PROBABILITY
-    # =============================
+ 
     if "failure_probability" in df.columns:
 
         st.subheader("⚠️ Failure Probability")
@@ -208,9 +158,7 @@ if df is not None:
 
         st.pyplot(fig)
 
-    # =============================
-    # ANOMALY DETECTION
-    # =============================
+ 
     if "anomaly" in df.columns:
 
         st.subheader("🚨 Anomaly Detection")
@@ -225,9 +173,7 @@ if df is not None:
 
         st.pyplot(fig)
 
-    # =============================
-    # DIGITAL TWIN
-    # =============================
+
     if model is not None and scaler is not None:
 
         st.subheader("🔮 Digital Twin Simulation")
@@ -238,9 +184,6 @@ if df is not None:
         st.pyplot(fig)
         plt.clf()
 
-    # =============================
-    # AI INSIGHTS
-    # =============================
     st.subheader("🧠 AI Insights")
 
     if "failure_probability" in df.columns:
